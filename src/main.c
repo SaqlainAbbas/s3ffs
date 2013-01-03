@@ -455,6 +455,27 @@ int main (int argc, char *argv[])
         { NULL, 0, 0, G_OPTION_ARG_NONE, NULL, NULL, NULL }
     };
 
+    if (argc < 3) {
+        // check if --version is specified
+        if (argc > 1 && !strcmp (argv[1], "--version")) {
+            g_fprintf (stdout, "\n");
+            g_fprintf (stdout, "S3 Fast File System v%s\n", VERSION);
+            g_fprintf (stdout, "Copyright (C) 2012 Paul Ionkin <paul.ionkin@gmail.com>\n");
+            g_fprintf (stdout, "Copyright (C) 2012 Skoobe GmbH. All rights reserved.\n");
+            g_fprintf (stdout, "Libraries:\n");
+            g_fprintf (stdout, " GLib: %d.%d.%d   libevent: %s  fuse: %d.%d  glibc: %s\n",
+                    GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
+                    LIBEVENT_VERSION,
+                    FUSE_MAJOR_VERSION, FUSE_MINOR_VERSION,
+                    gnu_get_libc_version ()
+            );
+            g_fprintf (stdout, "\n");
+        } else
+            print_usage (progname);
+        // Program exited successfully
+        return 0;
+    }
+	
     // init libraries
     ENGINE_load_builtin_engines ();
     ENGINE_register_all_complete ();
@@ -500,26 +521,6 @@ int main (int argc, char *argv[])
 
     if (!app->aws_access_key_id || !app->aws_secret_access_key) {
         print_usage (progname);
-        return -1;
-    }
-
-    if (argc < 3) {
-        // check if --version is specified
-        if (argc > 1 && !strcmp (argv[1], "--version")) {
-            g_fprintf (stdout, "\n");
-            g_fprintf (stdout, "S3 Fast File System v%s\n", VERSION);
-            g_fprintf (stdout, "Copyright (C) 2012 Paul Ionkin <paul.ionkin@gmail.com>\n");
-            g_fprintf (stdout, "Copyright (C) 2012 Skoobe GmbH. All rights reserved.\n");
-            g_fprintf (stdout, "Libraries:\n");
-            g_fprintf (stdout, " GLib: %d.%d.%d   libevent: %s  fuse: %d.%d  glibc: %s\n", 
-                    GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION, 
-                    LIBEVENT_VERSION,
-                    FUSE_MAJOR_VERSION, FUSE_MINOR_VERSION,
-                    gnu_get_libc_version ()
-            );
-            g_fprintf (stdout, "\n");
-        } else
-            print_usage (progname);
         return -1;
     }
 

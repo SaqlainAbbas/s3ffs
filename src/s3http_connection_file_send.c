@@ -62,7 +62,7 @@ gboolean s3http_connection_file_send (S3HttpConnection *con, int fd, const gchar
     gchar *req_path;
     gboolean res;
     FileSendData *data;
-    struct evbuffer *output_buf;
+    struct evbuffer *output_buf = NULL;
     struct stat st;
 
     data = g_new0 (FileSendData, 1);
@@ -71,8 +71,6 @@ gboolean s3http_connection_file_send (S3HttpConnection *con, int fd, const gchar
 
     LOG_debug (CON_SEND_LOG, "Sending file.. %p", data);
 
-    req_path = g_strdup_printf ("%s", resource_path);
-
     if (fstat (fd, &st) < 0) {
         LOG_err (CON_SEND_LOG, "Failed to stat temp file !");
         s3http_connection_on_file_send_error (con, (void *) data);
@@ -80,11 +78,15 @@ gboolean s3http_connection_file_send (S3HttpConnection *con, int fd, const gchar
     }
 
     output_buf = evbuffer_new ();
-    if (evbuffer_add_file (output_buf, fd, 0, st.st_size) < 0) {
+    if (!output_buf || evbuffer_add_file (output_buf, fd, 0, st.st_size) < 0) {
         LOG_err (CON_SEND_LOG, "Failed to read temp file !");
         s3http_connection_on_file_send_error (con, (void *) data);
+        if (output_buf)
+            evbuffer_free (output_buf);
         return FALSE;
     }
+
+    req_path = g_strdup_printf ("%s", resource_path);
 
     LOG_debug (CON_SEND_LOG, "[%p %p] Sending %s file, req: %s, %"OFF_FMT"  buff: %zd", con, data, 
         resource_path, req_path, st.st_size, evbuffer_get_length (output_buf));
