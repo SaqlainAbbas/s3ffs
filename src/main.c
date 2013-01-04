@@ -456,8 +456,8 @@ int main (int argc, char *argv[])
     };
 
     if (argc < 3) {
-        // check if --version is specified
-        if (argc > 1 && !strcmp (argv[1], "--version")) {
+        // check if --version/--V is specified
+        if (argc > 1 && (!strcmp (argv[1], "--version") || !strcmp (argv[1], "--V"))) {
             g_fprintf (stdout, "\n");
             g_fprintf (stdout, "S3 Fast File System v%s\n", VERSION);
             g_fprintf (stdout, "Copyright (C) 2012 Paul Ionkin <paul.ionkin@gmail.com>\n");
